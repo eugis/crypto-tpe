@@ -10,12 +10,11 @@ int main() {
 	size_t len = strlen(data);
 	BYTE* ans = malloc(MAX_ENCR_LENGTH*sizeof(char));
 	BYTE* ans_d = malloc(MAX_ENCR_LENGTH*sizeof(char));
-	int i = encrypt_aes192("12345678", data, len, ans, CBC);
+	int i = encrypt_aes128("12345678", data, len, ans, CFB);
 	//size_t len2 = strlen(enc_data);
-	print_data("Encrypted", ans, i);
-	int j = decrypt_aes192("12345678", ans, i, ans_d, CBC);
-	print_data("Decrypted", ans_d, j);
+	int j = decrypt_aes128("12345678", ans, i, ans_d, CFB);
 
 	free(ans);
+	free(ans_d);
 	return 0;
 }	
