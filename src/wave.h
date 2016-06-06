@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 // WAVE file header format
 struct HEADER {
 	unsigned char riff[4];						// RIFF string
@@ -14,3 +16,5 @@ struct HEADER {
 	unsigned char data_chunk_header [4];		// DATA string or FLLR string
 	unsigned int data_size;						// NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
 };
+
+int read_headers(struct HEADER * header, FILE * ptr);
