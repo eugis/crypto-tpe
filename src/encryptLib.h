@@ -3,7 +3,7 @@
 typedef enum { 
 	ECB, 
 	CFB, 
-	OFB, //Falta revisar este método que no está andando bien :/
+	OFB,
 	CBC 
 } encrypt_method;
 
@@ -11,8 +11,7 @@ typedef unsigned char BYTE;
 // It should be used to make "generic" functions for encryption and decryption
 typedef const EVP_CIPHER*(*encrypt_function)();
 
-#define MAX_ENCR_LENGTH 1024
-#define TAM_CLAVE 16
+#define TAM_CLAVE 16 // TODO: This should be replace with the longitude for each block
 
 int encrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int encrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);

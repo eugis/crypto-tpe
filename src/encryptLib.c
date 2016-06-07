@@ -4,8 +4,6 @@
 #include <string.h>
 #include <openssl/aes.h>
 
-// const static BYTE aes_key[]={0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xAA,0xBB,0xCC,0xDD,0xEE,0xFF};
-
 void print_data(const char *tittle, const void* data, int len);
 int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
 int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
@@ -30,17 +28,59 @@ int encrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 }
 
 int encrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl = encrypt(password, data, len, ans, EVP_aes_192_cbc);
+	int outl;
+	switch (method) {
+		case ECB:
+			outl = encrypt(password, data, len, ans, EVP_aes_192_ecb);
+			break;
+		case CFB:
+			outl = encrypt(password, data, len, ans, EVP_aes_192_cfb8);
+			break;
+		case OFB:
+			outl = encrypt(password, data, len, ans, EVP_aes_192_ofb);
+			break;
+		case CBC:
+			outl = encrypt(password, data, len, ans, EVP_aes_192_cbc);
+			break;
+	}
 	return outl;
 }
 
 int encrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl = encrypt(password, data, len, ans, EVP_aes_256_cbc);
+	int outl;
+	switch (method) {
+		case ECB:
+			outl = encrypt(password, data, len, ans, EVP_aes_256_ecb);
+			break;
+		case CFB:
+			outl = encrypt(password, data, len, ans, EVP_aes_256_cfb8);
+			break;
+		case OFB:
+			outl = encrypt(password, data, len, ans, EVP_aes_256_ofb);
+			break;
+		case CBC:
+			outl = encrypt(password, data, len, ans, EVP_aes_256_cbc);
+			break;
+	}
 	return outl;
 }
 
 int encrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl = encrypt(password, data, len, ans,  EVP_des_ede3_cbc);
+	int outl;
+	switch (method) {
+		case ECB:
+			outl = encrypt(password, data, len, ans, EVP_des_ede3_ecb);
+			break;
+		case CFB:
+			outl = encrypt(password, data, len, ans, EVP_des_ede3_cfb8);
+			break;
+		case OFB:
+			outl = encrypt(password, data, len, ans, EVP_des_ede3_ofb);
+			break;
+		case CBC:
+			outl = encrypt(password, data, len, ans,  EVP_des_ede3_cbc);
+			break;
+	}
 	return outl;
 }
 
@@ -64,17 +104,59 @@ int decrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 }
 
 int decrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl = decrypt(password, data, len, ans, EVP_aes_192_cbc);
-    return outl;
+	int outl;
+	switch (method) {
+		case ECB:
+			outl = decrypt(password, data, len, ans, EVP_aes_192_ecb);
+			break;
+		case CFB:
+			outl = decrypt(password, data, len, ans, EVP_aes_192_cfb8);
+			break;
+		case OFB:
+			outl = decrypt(password, data, len, ans, EVP_aes_192_ofb);
+			break;
+		case CBC:
+			outl = decrypt(password, data, len, ans, EVP_aes_192_cbc);
+			break;
+	}
+	return outl;
 }
 
 int decrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl = decrypt(password, data, len, ans, EVP_aes_256_cbc);
+	int outl;
+	switch (method) {
+		case ECB:
+			outl = decrypt(password, data, len, ans, EVP_aes_256_ecb);
+			break;
+		case CFB:
+			outl = decrypt(password, data, len, ans, EVP_aes_256_cfb8);
+			break;
+		case OFB:
+			outl = decrypt(password, data, len, ans, EVP_aes_256_ofb);
+			break;
+		case CBC:
+			outl = decrypt(password, data, len, ans, EVP_aes_256_cbc);
+			break;
+	}
 	return outl;
 }
 
 int decrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl = decrypt(password, data, len, ans,  EVP_des_ede3_cbc);
+	int outl;
+	switch (method) {
+		case ECB:
+			outl = decrypt(password, data, len, ans, EVP_des_ede3_ecb);
+			break;
+		case CFB:
+			outl = decrypt(password, data, len, ans, EVP_des_ede3_cfb8);
+			break;
+		case OFB:
+			outl = decrypt(password, data, len, ans, EVP_des_ede3_ofb);
+			break;
+		case CBC:
+			outl = decrypt(password, data, len, ans,  EVP_des_ede3_cbc);
+			break;
+	}
 	return outl;
 }
 
@@ -92,7 +174,7 @@ void print_data(const char *tittle, const void* data, int len) {
 int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
 	unsigned int outl, templ;
-	char out[MAX_ENCR_LENGTH];
+	char out[len];
 	BYTE key[TAM_CLAVE];
 	BYTE iv[TAM_CLAVE];
 	
@@ -120,7 +202,7 @@ int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 
 int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
-	BYTE out[MAX_ENCR_LENGTH]; 
+	BYTE out[len]; 
 	int outl, templ;
     BYTE key[TAM_CLAVE];
     BYTE iv[TAM_CLAVE];
