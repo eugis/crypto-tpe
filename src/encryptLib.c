@@ -209,7 +209,7 @@ int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 
 	/* Getting keys and iv */ 
 	// Salt is setting in NULL
-    EVP_BytesToKey(function(), EVP_md5(), NULL, password, strlen(password),1, key, iv);
+    EVP_BytesToKey(function(), EVP_md5(), NULL, password, strlen(password), 1, key, iv);
 
 	/* Initialize context */
 	EVP_CIPHER_CTX_init(&ctx);

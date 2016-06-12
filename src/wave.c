@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "wave.h"
+#include "fileLibrary.h"
+
 #define TRUE 1 
 #define FALSE 0
 
@@ -14,21 +16,22 @@
 unsigned char buffer4[4];
 unsigned char buffer2[2];
 
-char* seconds_to_time(float seconds);
-
 FILE *ptr;
 char *filename;
 struct HEADER header;
 
 int main(int argc, char **argv) {
 
-	int read = 0;
+	// Get parameters is needed. 
+	// It should validates parameters from main :)
+ int read = 0;
  filename = (char*) malloc(sizeof(char) * 1024);
  if (filename == NULL) {
    printf("Error in malloc\n");
    exit(1);
  }
 
+ FILE * ansPtr = fopen("ans.wav", "wb");
  // get file path
  char cwd[1024];
  if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -43,36 +46,20 @@ int main(int argc, char **argv) {
 	
 	strcat(filename, "/");
 	strcat(filename, argv[1]);
-	//printf("%s\n", filename);
  }
 
- // open file
- printf("Opening  file..\n");
- ptr = fopen(filename, "rb");
- if (ptr == NULL) {
-	printf("Error opening file\n");
-	exit(1);
- }
- 
- read = read_headers(&header, ptr);
+ ptr = openFile(filename);
+ read = read_headers(&header, ptr, ansPtr);
 
  // calculate no.of samples
  long num_samples = (8 * header.data_size) / (header.channels * header.bits_per_sample);
- printf("Number of samples:%lu \n", num_samples);
-
  long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
- printf("Size of each sample:%ld bytes\n", size_of_each_sample);
-
- // calculate duration of file
- float duration_in_seconds = (float) header.overall_size / header.byterate;
- printf("Approx.Duration in seconds=%f\n", duration_in_seconds);
- printf("Approx.Duration in h:m:s=%s\n", seconds_to_time(duration_in_seconds));
 
  // read each sample from data chunk if PCM
  if (header.format_type == 1) { // PCM
     printf("Dump sample data? Y/N?");
 	char c = 'n';
-	scanf("%c", &c);
+	scanf("%c", &c); 
 	if (c == 'Y' || c == 'y') { 
 		long i =0;
 		char data_buffer[size_of_each_sample];
@@ -86,7 +73,7 @@ int main(int argc, char **argv) {
 		}
  
 		if (size_is_correct) { 
-					// the valid amplitude range for values based on the bits per sample
+			// the valid amplitude range for values based on the bits per sample
 			long low_limit = 0l;
 			long high_limit = 0l;
 
@@ -105,18 +92,16 @@ int main(int argc, char **argv) {
 					break;
 			}					
 
-			printf("\n\n.Valid range for data values : %ld to %ld \n", low_limit, high_limit);
 			for (i =1; i <= num_samples; i++) {
-				printf("==========Sample %ld / %ld=============\n", i, num_samples);
 				read = fread(data_buffer, sizeof(data_buffer), 1, ptr);
+
 				if (read == 1) {
-				
+					fwrite(data_buffer, sizeof(data_buffer), 1, ansPtr);				
 					// dump the data read
 					unsigned int  xchannels = 0;
 					int data_in_channel = 0;
 
 					for (xchannels = 0; xchannels < header.channels; xchannels ++ ) {
-						printf("Channel#%d : ", (xchannels+1));
 						// convert data from little endian to big endian based on bytes in each channel sample
 						if (bytes_in_each_channel == 4) {
 							data_in_channel =	data_buffer[0] | 
@@ -132,16 +117,11 @@ int main(int argc, char **argv) {
 							data_in_channel = data_buffer[0];
 						}
 
-						printf("%d ", data_in_channel);
-
 						// check if value was in range
-						if (data_in_channel < low_limit || data_in_channel > high_limit)
+						if (data_in_channel < low_limit || data_in_channel > high_limit) {
 							printf("**value out of range\n");
-
-						printf(" | ");
+						}
 					}
-
-					printf("\n");
 				}
 				else {
 					printf("Error reading file. %d bytes\n", read);
@@ -155,55 +135,21 @@ int main(int argc, char **argv) {
 	} // if (c == 'Y' || c == 'y') { 
  } //  if (header.format_type == 1) { 
 
- printf("Closing file..\n");
- fclose(ptr);
-
-  // cleanup before quitting
+ // cleanup before quitting
+ closeFile(ptr);
  free(filename);
  return 0;
 }
 
-/**
- * Convert seconds into hh:mm:ss format
- * Params:
- *	seconds - seconds value
- * Returns: hms - formatted string
- **/
- char* seconds_to_time(float raw_seconds) {
-  char *hms;
-  int hours, hours_residue, minutes, seconds, milliseconds;
-  hms = (char*) malloc(100);
-
-  sprintf(hms, "%f", raw_seconds);
-
-  hours = (int) raw_seconds/3600;
-  hours_residue = (int) raw_seconds % 3600;
-  minutes = hours_residue/60;
-  seconds = hours_residue % 60;
-  milliseconds = 0;
-
-  // get the decimal part of raw_seconds to get milliseconds
-  char *pos;
-  pos = strchr(hms, '.');
-  int ipos = (int) (pos - hms);
-  char decimalpart[15];
-  memset(decimalpart, ' ', sizeof(decimalpart));
-  strncpy(decimalpart, &hms[ipos+1], 3);
-  milliseconds = atoi(decimalpart);	
-
-  
-  sprintf(hms, "%d:%d:%d.%d", hours, minutes, seconds, milliseconds);
-  return hms;
-}
-
-int read_headers(struct HEADER * header, FILE * ptr) {
+int read_headers(struct HEADER * header, FILE * ptr, FILE * ansPtr) {
 	int read = 0;
  
 	// read header parts
 
 	read = fread(header -> riff, sizeof(header -> riff), 1, ptr);
+	fwrite(header -> riff, sizeof(header -> riff), 1, ansPtr);
 	read = fread(buffer4, sizeof(buffer4), 1, ptr);
-	//printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
+	fwrite(buffer4, sizeof(buffer4), 1, ansPtr);
 	
 	// convert little endian to big endian 4 byte int
 	header -> overall_size  = buffer4[0] | 
@@ -211,26 +157,23 @@ int read_headers(struct HEADER * header, FILE * ptr) {
 							(buffer4[2]<<16) | 
 							(buffer4[3]<<24);
 
-	//printf("(5-8) Overall size: bytes:%u, Kb:%u \n", header -> overall_size, header -> overall_size/1024);
-
 	read = fread(header -> wave, sizeof(header -> wave), 1, ptr);
-	//printf("(9-12) Wave marker: %s\n", header -> wave);
+	fwrite(header -> wave, sizeof(header -> wave), 1, ansPtr);
 
 	read = fread(header -> fmt_chunk_marker, sizeof(header -> fmt_chunk_marker), 1, ptr);
-	//printf("(13-16) Fmt marker: %s\n", header -> fmt_chunk_marker);
+	fwrite(header -> fmt_chunk_marker, sizeof(header -> fmt_chunk_marker), 1, ansPtr);
 
 	read = fread(buffer4, sizeof(buffer4), 1, ptr);
-	//printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
+	fwrite(buffer4, sizeof(buffer4), 1, ansPtr);
 
 	// convert little endian to big endian 4 byte integer
 	header -> length_of_fmt = buffer4[0] |
 								(buffer4[1] << 8) |
 								(buffer4[2] << 16) |
 								(buffer4[3] << 24);
-	//printf("(17-20) Length of Fmt header: %u \n", header -> length_of_fmt);
 
 	read = fread(buffer2, sizeof(buffer2), 1, ptr); 
-	//printf("%u %u \n", buffer2[0], buffer2[1]);
+	fwrite(buffer2, sizeof(buffer2), 1, ansPtr);
 	
 	header -> format_type = buffer2[0] | (buffer2[1] << 8);
 	
@@ -245,53 +188,44 @@ int read_headers(struct HEADER * header, FILE * ptr) {
 		strcpy(format_name, "Mu-law");	
 	}
 
-	//printf("(21-22) Format type: %u %s \n", header -> format_type, format_name);
-
 	read = fread(buffer2, sizeof(buffer2), 1, ptr);
-	//printf("%u %u \n", buffer2[0], buffer2[1]);
+	fwrite(buffer2, sizeof(buffer2), 1, ansPtr);
 
 	header -> channels = buffer2[0] | (buffer2[1] << 8);
-	//printf("(23-24) Channels: %u \n", header -> channels);
 
 	read = fread(buffer4, sizeof(buffer4), 1, ptr);
-	//printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
+	fwrite(buffer4, sizeof(buffer4), 1, ansPtr);
 
 	header -> sample_rate = buffer4[0] |
 							(buffer4[1] << 8) |
 							(buffer4[2] << 16) |
 							(buffer4[3] << 24);
 
-	//printf("(25-28) Sample rate: %u\n", header -> sample_rate);
-
 	read = fread(buffer4, sizeof(buffer4), 1, ptr);
-	//printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
+	fwrite(buffer4, sizeof(buffer4), 1, ansPtr);
 
 	header -> byterate  = buffer4[0] |
 							(buffer4[1] << 8) |
 							(buffer4[2] << 16) |
 							(buffer4[3] << 24);
-	//printf("(29-32) Byte Rate: %u , Bit Rate:%u\n", header -> byterate, header -> byterate*8);
 
 	read = fread(buffer2, sizeof(buffer2), 1, ptr);
-	//printf("%u %u \n", buffer2[0], buffer2[1]);
+	fwrite(buffer2, sizeof(buffer2), 1, ansPtr);
 
 	header -> block_align = buffer2[0] | (buffer2[1] << 8);
-	//printf("(33-34) Block Alignment: %u \n", header -> block_align);
 
 	read = fread(buffer2, sizeof(buffer2), 1, ptr);
-	//printf("%u %u \n", buffer2[0], buffer2[1]);
+	fwrite(buffer2, sizeof(buffer2), 1, ansPtr);
 	header -> bits_per_sample = buffer2[0] | (buffer2[1] << 8);
-	//printf("(35-36) Bits per sample: %u \n", header -> bits_per_sample);
 	read = fread(header -> data_chunk_header, sizeof(header -> data_chunk_header), 1, ptr);
-	//printf("(37-40) Data Marker: %s \n", header -> data_chunk_header);
+	fwrite(header -> data_chunk_header, sizeof(header -> data_chunk_header), 1, ansPtr);
 	read = fread(buffer4, sizeof(buffer4), 1, ptr);
-	//printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
+	fwrite(buffer4, sizeof(buffer4), 1, ansPtr);
 
 	header -> data_size = buffer4[0] |
 					(buffer4[1] << 8) |
 					(buffer4[2] << 16) | 
 					(buffer4[3] << 24 );
-	//printf("(41-44) Size of data chunk: %u \n", header -> data_size);
 
 	return read;
 }

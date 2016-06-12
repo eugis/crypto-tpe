@@ -17,4 +17,4 @@ struct HEADER {
 	unsigned int data_size;						// NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
 };
 
-int read_headers(struct HEADER * header, FILE * ptr);
+int read_headers(struct HEADER * header, FILE * ptr, FILE * ansPtr);
