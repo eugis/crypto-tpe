@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "fileLibrary.h"
+#include "encryptLib.h"
 
 typedef unsigned char BYTE;
 

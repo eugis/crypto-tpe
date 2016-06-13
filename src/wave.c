@@ -54,20 +54,17 @@ int main(int argc, char **argv) {
 
  // calculate no.of samples
  long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
-
  // read each sample from data chunk if PCM
  if (header.format_type == 1) { // PCM
 	long i =0;
-	char data_buffer[120000]; // this trows segmentation fault
-	printf("%d\n", header.data_size);
+	char* data_buffer=malloc(header.data_size); // this trows segmentation
 	int  size_is_correct = TRUE;
  
 	if (size_is_correct) { 				
-		read = fread(data_buffer, sizeof(data_buffer), 1, ptr);
+		read = fread(data_buffer, header.data_size, 1, ptr);
 		if (read == 1) {
-			printf("Estoy leyendo bien\n");
-			//get_from_LSB1(data_buffer, "out", size_of_each_sample);
-			fwrite(data_buffer, sizeof(data_buffer), 1, ansPtr);				
+			get_from_LSB1(data_buffer, "out", size_of_each_sample);
+			// fwrite(data_buffer, sizeof(data_buffer), 1, ansPtr);				
 		} else {
 			printf("Error reading file. %d bytes\n", read);
 		}
@@ -165,6 +162,7 @@ int read_headers(struct HEADER * header, FILE * ptr, FILE * ansPtr) {
 					(buffer4[1] << 8) |
 					(buffer4[2] << 16) | 
 					(buffer4[3] << 24 );
+	
 
 	return read;
 }
