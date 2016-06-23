@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 	if (size_is_correct) { 				
 		read = fread(data_buffer, header.data_size, 1, ptr);
 		if (read == 1) {
-			get_from_LSB1(data_buffer, "out", size_of_each_sample);
+			get_from_LSBE(data_buffer, "out", size_of_each_sample);
 			// fwrite(data_buffer, sizeof(data_buffer), 1, ansPtr);				
 		} else {
 			printf("Error reading file. %d bytes\n", read);
