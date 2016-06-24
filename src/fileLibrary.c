@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 // open file
-FILE * openFile(char * filename) {
+FILE * openFile(const char * filename) {
 	FILE *ptr;
 	printf("Opening  file..\n");
 	ptr = fopen(filename, "rb");
@@ -17,4 +17,12 @@ FILE * openFile(char * filename) {
 void closeFile(FILE * ptr) {
 	printf("Closing file..\n");
 	fclose(ptr);
+}
+
+unsigned int getLen(FILE* file) {
+	unsigned int len;
+	fseek(file, 0L, SEEK_END);
+	len = ftell(file);
+	rewind(file);
+	return len;
 }

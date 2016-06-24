@@ -5,17 +5,39 @@ void get_LSB1(BYTE * out, int index, BYTE data);
 void put_LSB4(BYTE * out, int index, int size_of_each_sample, BYTE data);
 void get_LSB4(BYTE * out, int index, BYTE data);
 
-void apply_LSB1(BYTE * data, const BYTE * message, int size_of_each_sample) {
+void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample) {
 	int i;
-	int size = sizeof(message);
+	
+	//
+	FILE * ptr = openFile(hide_filename);
+	int hidden_file_size = getLen(ptr);
+	int content_size = 4*sizeof(BYTE) + hidden_file_size + 5*sizeof(BYTE); // .txt
+	BYTE hide_buffer[content_size];
+	hide_buffer[0] = hidden_file_size << 24;
+	hide_buffer[1] = hidden_file_size << 16;
+	hide_buffer[2] = hidden_file_size << 8;
+	hide_buffer[3] = hidden_file_size;
 
-	if (size > sizeof(data) / size_of_each_sample) {
+	int read = fread(hide_buffer+4, content_size, 1, ptr);
+
+	hide_buffer[hidden_file_size + 4] = '.';
+	hide_buffer[hidden_file_size + 5] = 't';
+	hide_buffer[hidden_file_size + 6] = 'x';
+	hide_buffer[hidden_file_size + 7] = 't';
+	hide_buffer[hidden_file_size + 8] = '\0';
+
+	if (read == 1) {
+		printf("Error: fail to open file %s\n", hide_filename);
+		exit(1);
+	}
+
+	if ( content_size > sizeof(data) / size_of_each_sample / 8) {
 		printf("Error: the message doesn't fit data\n");
 		exit(1);
 	}
 
-	for (i = 0; i < size; i += 8*size_of_each_sample) {
-		put_LSB1(data, i, size_of_each_sample, message);
+	for (i = 0; i < content_size; i ++) {
+		put_LSB1(data, i*size_of_each_sample, size_of_each_sample, hide_buffer[i]);
 	}
 }
 
@@ -26,7 +48,7 @@ void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sa
 	for (i = 0; i < sizeof(unsigned int)*8; i++) {
 		get_LSB1(a, i, data[(i+1)*size_of_each_sample-1]);
 	}
-	size = a[0]<<24 | a[1] << 16 | a[2] << 8 | a[3];
+	size = a[0]<<24 | a[1] << 16 | a[2] << 8 |a[3];
 	printf("%u\n", size);
 	BYTE * message = malloc(size);
 	for (j = 0; j < size*8; j++) {
@@ -35,7 +57,7 @@ void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sa
 
 	char * b = malloc(sizeof(char) * 20);
 	l = 0;
-	while (l == 0 || l % 8 != 0 || b[l/8-1] != '\0') { 
+	while (l == 0 || l % 8 != 0 || b[l/8-1] != '\0'){ 
 		get_LSB1(b, l, data[(1+i+j+l)*size_of_each_sample-1]);
 		l++;
 	}

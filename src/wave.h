@@ -22,41 +22,4 @@ struct HEADER {
 	unsigned int data_size;						// NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
 };
 
-// typedef DWORD FOURCC; //Four-character code
-// typedef FOURCC CKID; //Four-character-code chunk identifier 
-// typedef DWORD CKSIZE; //32-bit unsigned size value
-
-// typedef struct{
-//     CKID    chunkID;    // 'RIFF'
-//     CKSIZE  chunkSize;  // File Size
-//     CKID    format;     // Format: 'WAVE'
-// } RIFF_CK;
-
-// typedef struct{
-// 	CKID chunkID; //'fmt '
-// 	CKSIZE chunkSize; // 16 para PCM.Size of rest of subchunk. /* Common fields */
-// 	DWORD wFormatTag; // Format category,i.e.:PCM = 1 (no
-// 				 	 //compres.)
-// 	DWORD wChannels; // Number of channels:1, mono; 2, stereo DWORD dwSamplesPerSec; // Sampling rate: Mhz
-// 	DWORD dwAvgBytesPerSec;
-// 	WORD wBlockAlign;
-// 	WORD wBitsPerSample; //8, 16, etc.
-// 	WORD extraParamSize;// If PCM, doesn't exist BYTE *extraParams;//space for extra params
-// } FMT_CK;
-
-// typedef struct{
-// 	CKID chunkID; // 'data'
-// 	CKSIZE chunkSize; // Bytes of data BYTE *soundData; // Sound data.
-// } DATA_CK;
-
-// struct wavStr {
-// 	RIFF_CK riff_desc; // MANDATORY
-// 	FMT_CK fmt;
-// 	//FACT_CK fact;
-// 	//CUE_CK cue;
-// 	//PLIST_CK plist;// Playlist Chunk OPTIONAL
-// 	//LIST_CK list; // Associated data list Chunk OPTIONAL // more optional data...
-// 	DATA_CK data; // Wave Data Chunk MANDATORY };
-// };
-
 int read_headers(struct HEADER * header, FILE * ptr, FILE * ansPtr);
