@@ -10,9 +10,9 @@ void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 	
 	FILE * ptr = openFile(hide_filename);
 	int hidden_file_size = getLen(ptr);
-	int content_size = 4*sizeof(BYTE) + hidden_file_size + 1*sizeof(BYTE); // .txt
+	int content_size = 4*sizeof(BYTE) + hidden_file_size + 5*sizeof(BYTE); // .txt
 	BYTE * hide_buffer = calloc(content_size, sizeof(BYTE));
-	hide_buffer[0] = hidden_file_size <<24;
+	hide_buffer[0] = hidden_file_size << 24;
 	hide_buffer[1] = hidden_file_size << 16;
 	hide_buffer[2] = hidden_file_size << 8;
 	hide_buffer[3] = hidden_file_size;
@@ -25,11 +25,11 @@ void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 		exit(1);
 	}
 
-	hide_buffer[hidden_file_size + 1] = '.';
-	hide_buffer[hidden_file_size + 2] = 't';
-	hide_buffer[hidden_file_size + 3] = 'x';
-	hide_buffer[hidden_file_size + 4] = 't';
-	hide_buffer[hidden_file_size + 5] = '\0';
+	hide_buffer[hidden_file_size + 4] = '.';
+	hide_buffer[hidden_file_size + 5] = 't';
+	hide_buffer[hidden_file_size + 6] = 'x';
+	hide_buffer[hidden_file_size + 7] = 't';
+	hide_buffer[hidden_file_size + 8] = '\0';
 
 	print_data("data a esconder completa:", hide_buffer, content_size);
 	// int data_size2 = strlen(data);
@@ -103,6 +103,7 @@ void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sa
 	strcat(full_filename, filename);
 	strcat(full_filename, b);
 	print_data("message:", message, size);
+	printf("mess: %s \n Filename: %s \nExtension: %s\n", message, full_filename, b);
 	FILE * ptr = fopen(full_filename, "wb");
 	fwrite(message, size, 1, ptr);	
 	closeFile(ptr);			
