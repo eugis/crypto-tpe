@@ -180,10 +180,10 @@ int main(int argc, char** argv) {
 						apply_LSB1(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
 						break;
 					case LSB4:
-						// TODO
+						apply_LSB4(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
 						break;
 					case LSBE:
-						// TODO
+						apply_LSBE(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
 						break;
 				}
 			}	
