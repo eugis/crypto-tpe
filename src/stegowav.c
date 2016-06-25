@@ -10,16 +10,18 @@ typedef unsigned char BYTE;
 void put_LSB1(BYTE * out, int index, int size_of_each_sample, BYTE data) {
 		int i;
 		for(i=0; i<8; i++){
-			print_data("antes en put_LSB1:", out, 16);
+			// print_data("antes en put_LSB1:", out, 16);
 			BYTE out_byte = out[index+(7-i)*size_of_each_sample];
-			print_data("out_byte: ", &out_byte, 1);
-			BYTE mask = out_byte &1;
-			print_data("mask: ", &mask, 1);
-			mask &= ((data >> (i)&1));
-			print_data("modifyed mask: ", &mask, 1);
-			*(out+index+(7-i)*size_of_each_sample) |= mask; 
-			print_data("modifyed mask: ", out, 16);
-			printf("\n");
+			// print_data("out_byte: ", &out_byte, 1);
+			BYTE mask = out_byte &0xfe;
+			// print_data("mask: ", &mask, 1);
+			mask |= ((data >> (i)&1));
+			// print_data("modifyed mask: ", &mask, 1);
+			// print_data("should modify byte: ", out+index+(7-i)*size_of_each_sample, 1);
+			// printf("%x\n", *(out+index+(7-i)*size_of_each_sample) | mask);
+			*(out+index+(7-i)*size_of_each_sample) &= mask; 
+			// print_data("out after lsb1: ", out, 16);
+			// printf("\n");
 		}
 }
 

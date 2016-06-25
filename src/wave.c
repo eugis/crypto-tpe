@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
    exit(1);
  }
 
- FILE * ansPtr = fopen("ans.wav", "wb");
+ FILE * ansPtr = fopen("ans2.wav", "wb");
  // get file path
  char cwd[1024];
  if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -55,15 +55,12 @@ int main(int argc, char **argv) {
  // calculate no.of samples
  long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
  // read each sample from data chunk if PCM
- printf("%s\n", "no es pcm?");
  if (header.format_type == 1) { // PCM
 	long i =0;
 	char* data_buffer=malloc(header.data_size); // this trows segmentation
 	int  size_is_correct = TRUE;
- 	printf("%s\n", "voy a verificar el formato");
 	if (size_is_correct) { 				
 		read = fread(data_buffer, header.data_size, 1, ptr);
-		printf("%s\n", "intento leer");
 		if (read == 1) {
 			char cwd[1024];
 			free(filename);
@@ -72,8 +69,8 @@ int main(int argc, char **argv) {
 				strcpy(filename, cwd);
 				strcat(filename, "/../data/a.txt");
 			}
-			apply_LSB1(data_buffer, ansPtr, filename, size_of_each_sample, header.data_size);
-			// get_from_LSB1(data_buffer, "out", size_of_each_sample);
+			// apply_LSB1(data_buffer, ansPtr, filename, size_of_each_sample, header.data_size);
+			get_from_LSB1(data_buffer, "out", size_of_each_sample);
 			// fwrite(data_buffer, sizeof(data_buffer), 1, ansPtr);		
 			closeFile(ansPtr);		
 		} else {
