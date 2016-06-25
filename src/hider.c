@@ -5,39 +5,60 @@ void get_LSB1(BYTE * out, int index, BYTE data);
 void put_LSB4(BYTE * out, int index, int size_of_each_sample, BYTE data);
 void get_LSB4(BYTE * out, int index, BYTE data);
 
-void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample) {
+void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size) {
 	int i;
 	
-	//
 	FILE * ptr = openFile(hide_filename);
 	int hidden_file_size = getLen(ptr);
 	int content_size = 4*sizeof(BYTE) + hidden_file_size + 5*sizeof(BYTE); // .txt
 	BYTE hide_buffer[content_size];
-	hide_buffer[0] = hidden_file_size << 24;
+	hide_buffer[0] = hidden_file_size <<24;
 	hide_buffer[1] = hidden_file_size << 16;
 	hide_buffer[2] = hidden_file_size << 8;
 	hide_buffer[3] = hidden_file_size;
 
-	int read = fread(hide_buffer+4, content_size, 1, ptr);
+	print_data("size in buffer", hide_buffer, 4);
+	printf("%d\n", hidden_file_size);
 
-	hide_buffer[hidden_file_size + 4] = '.';
-	hide_buffer[hidden_file_size + 5] = 't';
-	hide_buffer[hidden_file_size + 6] = 'x';
-	hide_buffer[hidden_file_size + 7] = 't';
-	hide_buffer[hidden_file_size + 8] = '\0';
-
-	if (read == 1) {
-		printf("Error: fail to open file %s\n", hide_filename);
+	int read = fread(hide_buffer+4, 1, hidden_file_size, ptr);
+	if (read == 0) {
+		printf("Error: fail to read file %s\n", hide_filename);
 		exit(1);
 	}
 
-	if ( content_size > sizeof(data) / size_of_each_sample / 8) {
-		printf("Error: the message doesn't fit data\n");
+	hide_buffer[hidden_file_size + 1] = '.';
+	hide_buffer[hidden_file_size + 2] = 't';
+	hide_buffer[hidden_file_size + 3] = 'x';
+	hide_buffer[hidden_file_size + 4] = 't';
+	hide_buffer[hidden_file_size + 5] = '\0';
+
+	print_data("data a esconde completa", hide_buffer, content_size);
+	// int data_size2 = strlen(data);
+	// printf("Data size: %d\n", data_size2);
+	// printf("Data size original: %d\n", data_size);
+	// printf("Size of sample: %d\n", size_of_each_sample);
+	// printf("Content size: %d\n", content_size);
+
+	// print_data(data_size, data, data_size2);
+	if ( content_size > sizeof(BYTE) * data_size/ size_of_each_sample / 8) {
+		printf("Error: the message doesn't fit data: %d\n", sizeof(BYTE) * data_size / size_of_each_sample);
 		exit(1);
 	}
 
 	for (i = 0; i < content_size; i ++) {
 		put_LSB1(data, i*size_of_each_sample, size_of_each_sample, hide_buffer[i]);
+	}
+	fwrite(data, data_size, 1, file_to_write);				
+}
+
+// index: first index to write in out 
+void put_LSB1(BYTE * out, int index, int size_of_each_sample, BYTE data) {
+	int i;
+	for(i=0; i<8; i++){
+		BYTE out_byte = out[index+(7-i)*size_of_each_sample];
+		BYTE mask = out_byte &1;
+		mask &= ((data >> (i)&1));
+		out[index+(7-i)*size_of_each_sample]|= mask; 
 	}
 }
 
@@ -49,7 +70,8 @@ void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sa
 		get_LSB1(a, i, data[(i+1)*size_of_each_sample-1]);
 	}
 	size = a[0]<<24 | a[1] << 16 | a[2] << 8 |a[3];
-	printf("%u\n", size);
+	printf("%x\n", size);
+	print_data("number size", &size, 4);
 	BYTE * message = malloc(size);
 	for (j = 0; j < size*8; j++) {
 		get_LSB1(message, j, data[(j+i+1)*size_of_each_sample-1]);	
@@ -64,9 +86,10 @@ void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sa
 	char * full_filename = malloc(strlen(filename) + strlen(b));
 	strcat(full_filename, filename);
 	strcat(full_filename, b);
-
+	print_data("message:", message, size);
 	FILE * ptr = fopen(full_filename, "wb");
-	fwrite(message, size, 1, ptr);				
+	fwrite(message, size, 1, ptr);	
+	closeFile(ptr);			
 }
 
 // Change this method
@@ -160,12 +183,4 @@ void get_from_LSBE(const BYTE * data, const char * filename, int size_of_each_sa
 
 	FILE * ptr = fopen(full_filename, "wb");
 	fwrite(message, size, 1, ptr);				
-}
-
-// index: first index to write in out 
-void put_LSB1(BYTE * out, int index, int size_of_each_sample, BYTE data) {
-	int i;
-	for(i=0; i<8; i++){
-		out[index+i*size_of_each_sample]|=(data>>(i))&1;
-	}
 }

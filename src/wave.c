@@ -55,31 +55,27 @@ int main(int argc, char **argv) {
  // calculate no.of samples
  long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
  // read each sample from data chunk if PCM
+ printf("%s\n", "no es pcm?");
  if (header.format_type == 1) { // PCM
 	long i =0;
 	char* data_buffer=malloc(header.data_size); // this trows segmentation
 	int  size_is_correct = TRUE;
- 
+ 	printf("%s\n", "voy a verificar el formato");
 	if (size_is_correct) { 				
 		read = fread(data_buffer, header.data_size, 1, ptr);
+		printf("%s\n", "intento leer");
 		if (read == 1) {
 			char cwd[1024];
 			free(filename);
 			filename = (char*) malloc(sizeof(char) * 1024);
  			if (getcwd(cwd, sizeof(cwd)) != NULL) {
-   
 				strcpy(filename, cwd);
-
-				// get filename from command line
-				if (argc < 2) {
-				 printf("No wave file specified\n");
-				 return 0;
-				}
-				strcat(filename, "/./../data/a.txt");
+				strcat(filename, "/../data/a.txt");
 			}
-			apply_LSB1(data_buffer, ansPtr, filename, size_of_each_sample);
-			//get_from_LSBE(data_buffer, "out", size_of_each_sample);
-			// fwrite(data_buffer, sizeof(data_buffer), 1, ansPtr);				
+			apply_LSB1(data_buffer, ansPtr, filename, size_of_each_sample, header.data_size);
+			// get_from_LSB1(data_buffer, "out", size_of_each_sample);
+			// fwrite(data_buffer, sizeof(data_buffer), 1, ansPtr);		
+			closeFile(ansPtr);		
 		} else {
 			printf("Error reading file. %d bytes\n", read);
 		}
