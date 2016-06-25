@@ -10,12 +10,15 @@ void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 	
 	FILE * ptr = openFile(hide_filename);
 	int hidden_file_size = getLen(ptr);
-	int content_size = 4*sizeof(BYTE) + hidden_file_size + 5*sizeof(BYTE); // .txt
+	char* extension = get_extension(hide_filename);
+	int extension_size = strlen(extension);
+
+	int content_size = 4*sizeof(BYTE) + hidden_file_size + extension_size + 2; // +1 for the '.' and the '\0'
 	BYTE * hide_buffer = calloc(content_size, sizeof(BYTE));
-	hide_buffer[0] = hidden_file_size << 24;
-	hide_buffer[1] = hidden_file_size << 16;
-	hide_buffer[2] = hidden_file_size << 8;
-	hide_buffer[3] = hidden_file_size;
+	hide_buffer[0] = (hidden_file_size >> 24) & 0xFF;
+	hide_buffer[1] = (hidden_file_size >> 16) & 0xFF;
+	hide_buffer[2] = (hidden_file_size >> 8) & 0xFF;
+	hide_buffer[3] = hidden_file_size & 0xFF;
 
 	print_data("size in buffer", hide_buffer, 4);
 
@@ -26,10 +29,9 @@ void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 	}
 
 	hide_buffer[hidden_file_size + 4] = '.';
-	hide_buffer[hidden_file_size + 5] = 't';
-	hide_buffer[hidden_file_size + 6] = 'x';
-	hide_buffer[hidden_file_size + 7] = 't';
-	hide_buffer[hidden_file_size + 8] = '\0';
+	for (i = 0; i <= extension_size; i++) {
+		hide_buffer[hidden_file_size + 5 + i] = extension[i];
+	}
 
 	print_data("data a esconder completa:", hide_buffer, content_size);
 	// int data_size2 = strlen(data);
@@ -44,38 +46,38 @@ void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 		exit(1);
 	}
 
-	printf("-------------------------------------------------------------------\n");
-	print_data("data bytes:", data, 4*size_of_each_sample*8);
+	// printf("-------------------------------------------------------------------\n");
+	// print_data("data bytes:", data, 4*size_of_each_sample*8);
 	for (i = 0; i < content_size; i ++) {
 		put_LSB1(data, (i*8+1)*size_of_each_sample - 1, size_of_each_sample, hide_buffer[i]);
 	}
-	print_data("data bytes after lsb1:", data, 4*size_of_each_sample*8);
-	printf("-------------------------------------------------------------------\n");
+	// print_data("data bytes after lsb1:", data, 4*size_of_each_sample*8);
+	// printf("-------------------------------------------------------------------\n");
 	i = fwrite(data, 1, data_size, file_to_write);				
 }
 
 // index: first index to write in out 
 void put_LSB1(BYTE * out, int index, int size_of_each_sample, BYTE data) {
 		int i;
-		printf("%x\n", data);
+		// printf("%x\n", data);
 		for(i=0; i<8; i++){
-			printf("-------------------------------------------------------------------\n");
-			print_data("antes en put_LSB1:", out+index-1, 16);
+			// printf("-------------------------------------------------------------------\n");
+			// print_data("antes en put_LSB1:", out+index-1, 16);
 			BYTE out_byte = out[index+(7-i)*size_of_each_sample];
-			print_data("out_byte: ", &out_byte, 1);
+			// print_data("out_byte: ", &out_byte, 1);
 			BYTE mask = out_byte &0xfe;
-			print_data("mask: ", &mask, 1);
+			// print_data("mask: ", &mask, 1);
 			mask |= ((data >> i)&1);
-			print_data("modifyed mask: ", &mask, 1);
+			// print_data("modifyed mask: ", &mask, 1);
 			// print_data("should modify byte: ", out+index+(7-i)*size_of_each_sample, 1);
 			// printf("%x\n", *(out+index+(7-i)*size_of_each_sample) | mask);
 			*(out+index+(7-i)*size_of_each_sample) |=1; 
 			*(out+index+(7-i)*size_of_each_sample) &= mask; 
-			print_data("out after lsb1: ", out+index-1, 16);
-			printf("\n");
+			// print_data("out after lsb1: ", out+index-1, 16);
+			// printf("\n");
 			// printf("-------------------------------------------------------------------\n");
 		}
-		printf("-------------------------------------------------------------------\n");
+		// printf("-------------------------------------------------------------------\n");
 }
 
 void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sample) {

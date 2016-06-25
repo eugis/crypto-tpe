@@ -26,3 +26,9 @@ unsigned int getLen(FILE* file) {
 	rewind(file);
 	return len;
 }
+
+char* get_extension(const char* filename) {
+	const char *dot = strrchr(filename, '.');
+    if (!dot || dot == filename) return "";
+    return dot + 1;
+}
