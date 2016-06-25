@@ -1,3 +1,6 @@
+#ifndef ENCRYPT_LIB
+#define ENCRYPT_LIB 
+
 #include <openssl/evp.h>
 
 typedef enum { 
@@ -22,3 +25,5 @@ int decrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 int decrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int decrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int decrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
+
+#endif
