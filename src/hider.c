@@ -96,7 +96,53 @@ void apply_LSB4(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 }
 
 void apply_LSBE(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size) {
+	int i;
+	
+	FILE * ptr = openFile(hide_filename);
+	int hidden_file_size = getLen(ptr);
+	char* extension = get_extension(hide_filename);
+	int extension_size = strlen(extension);
 
+	int content_size = 4*sizeof(BYTE) + hidden_file_size + extension_size + 2; // +1 for the '.' and the '\0'
+	BYTE * hide_buffer = calloc(content_size, sizeof(BYTE));
+	hide_buffer[0] = (hidden_file_size >> 24) & 0xFF;
+	hide_buffer[1] = (hidden_file_size >> 16) & 0xFF;
+	hide_buffer[2] = (hidden_file_size >> 8) & 0xFF;
+	hide_buffer[3] = hidden_file_size & 0xFF;
+
+	print_data("size in buffer", hide_buffer, 4);
+
+	int read = fread(hide_buffer+4, 1, hidden_file_size, ptr);
+	if (read == 0) {
+		printf("Error: fail to read file %s\n", hide_filename);
+		exit(1);
+	}
+
+	hide_buffer[hidden_file_size + 4] = '.';
+	for (i = 0; i <= extension_size; i++) {
+		hide_buffer[hidden_file_size + 5 + i] = extension[i];
+	}
+
+	print_data("data a esconder completa:", hide_buffer, content_size);
+
+	i = 0;
+	int bits_read = 0;
+	int byte_in_hidden_buffer = 0;
+	while(bits_read < content_size * 8) {
+		if (i == data_size) {
+			printf("Error: the message doesn't fit data\n");
+			exit(1);	
+		}
+		if (data[i] == 0xFF || data[i] == 0xFE) {
+			data[i] &= 0xFE;
+			BYTE byte_to_save = hide_buffer[byte_in_hidden_buffer];
+			data[i] |= (byte_to_save >> (7 - bits_read%8))&1;
+			bits_read++;
+			byte_in_hidden_buffer += (bits_read % 8 == 0);
+		}
+		i++;
+	}
+	i = fwrite(data, 1, data_size, file_to_write);	
 }
 
 // index: first index to write in out 
