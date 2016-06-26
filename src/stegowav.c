@@ -22,25 +22,6 @@ void error(char* msg) {
 	exit(1);
 }
 
-int main2(int argc, char** argv) {
-
-	char data[] = "\nhola mundo\n"; 
-	size_t len = strlen(data);
-	BYTE* ans = malloc(len*sizeof(char));
-	BYTE* ans_d = malloc(len*sizeof(char));
-	int i = encrypt_aes192("12345678", data, len, ans, CBC);
-	int j = decrypt_aes192("12345678", ans, i, ans_d, CBC);
-
-	printf("%d %d\n", strlen(ans), strlen(ans_d));
-
-	free(ans);
-	free(ans_d);
-
-	
-	return 0;
-
-}
-
 int main(int argc, char** argv) {
 	printf("Bienvenido a stegowav\n");
 	printf("Hola mundo les da la bienvenida\n");
@@ -150,7 +131,7 @@ int main(int argc, char** argv) {
 	}
 
 	FILE * host_ptr;
-	FILE * out_ptr = fopen(out_file, "wb");
+	FILE * out_ptr = open_file(out_file, "wb");
 	struct HEADER file_header;
 	int read = 0;
 
@@ -160,7 +141,7 @@ int main(int argc, char** argv) {
 		strcat(full_host_file_path, host_file);
 	}
 
-	host_ptr = openFile(full_host_file_path);
+	host_ptr = open_file(full_host_file_path, "rb");
 	read = read_headers(&file_header, host_ptr, out_ptr);
 
 	// Calculate number of samples
@@ -231,7 +212,7 @@ int main(int argc, char** argv) {
 	} //  if (header.format_type == 1) { 
 
 	// Cleanup before quitting
-	closeFile(host_ptr);
+	close_file(host_ptr);
 	fclose(out_ptr);
 
 	return 0;

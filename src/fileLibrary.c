@@ -2,10 +2,9 @@
 #include <stdlib.h>
 
 // open file
-FILE * openFile(const char * filename) {
+FILE * open_file(const char * filename, const char * mode) {
 	FILE *ptr;
-	printf("Opening  file..\n");
-	ptr = fopen(filename, "rb");
+	ptr = fopen(filename, mode);
 	if (ptr == NULL) {
 		printf("Error opening file\n");
 		exit(1);
@@ -14,12 +13,11 @@ FILE * openFile(const char * filename) {
 }
 
 // close file
-void closeFile(FILE * ptr) {
-	printf("Closing file..\n");
+void close_file(FILE * ptr) {
 	fclose(ptr);
 }
 
-unsigned int getLen(FILE* file) {
+unsigned int get_len(FILE* file) {
 	unsigned int len;
 	fseek(file, 0L, SEEK_END);
 	len = ftell(file);

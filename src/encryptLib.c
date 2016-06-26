@@ -213,7 +213,7 @@ int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 	EVP_CIPHER_CTX ctx;
 	unsigned int keyl, ivl;
 	unsigned int outl, templ;
-	char out[len + EVP_MAX_BLOCK_LENGTH - 1];
+	char *out = calloc(len + EVP_MAX_BLOCK_LENGTH - 1, sizeof(char));
 	keyl = EVP_CIPHER_key_length(function());
 	ivl = EVP_CIPHER_iv_length(function());
 	BYTE key[keyl];
@@ -230,14 +230,10 @@ int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 	EVP_EncryptFinal_ex(&ctx, out + outl, &templ);
 	outl +=templ;
 	memcpy(ans, out, outl);
-
-	/* Testing */
-	// print_data("Original ", data, len*sizeof(char)); // you can not print data as a string, because after Encryption its not ASCII
-	// printf("%s\n", data);
-	// print_data("Encrypted", ans, outl*sizeof(BYTE));
 	
 	/* Clean context struct */ 
 	EVP_CIPHER_CTX_cleanup(&ctx);
+	free(out);
 	return outl;
 }
 
@@ -245,7 +241,7 @@ int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 	EVP_CIPHER_CTX ctx;
 	unsigned int keyl, ivl;
 	unsigned int outl, templ;
-	char out[len];
+	char *out = calloc(len, sizeof(char));
 	keyl = EVP_CIPHER_key_length(function());
 	ivl = EVP_CIPHER_iv_length(function());
     BYTE key[keyl];
@@ -261,14 +257,10 @@ int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 	EVP_DecryptUpdate(&ctx, out, &outl, data, len); 
 	EVP_DecryptFinal_ex(&ctx, out + outl, &templ);
 	outl +=templ;
-
-	/* Testing */
 	memcpy(ans, out, outl);
-	// print_data("Encrypted", data, len*sizeof(char));
-	// printf("%s\n", ans);
-	// print_data("Decrypted", out, outl*sizeof(char));
 	
 	/* Clean context struct */ 
 	EVP_CIPHER_CTX_cleanup(&ctx);
+	free(out);
 	return outl;
 }
