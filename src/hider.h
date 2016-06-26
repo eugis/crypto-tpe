@@ -12,3 +12,4 @@ void apply_LSBE(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sample);
 void get_from_LSB4(const BYTE * data, const char * filename, int size_of_each_sample);
 void get_from_LSBE(const BYTE * data, const char * filename, int size_of_each_sample);
+void get_from_LSB1_encrypted(const BYTE * data, const char * filename, int size_of_each_sample, char * password, encrypt_mode encrypt_mode, encrypt_method method);

@@ -8,6 +8,25 @@ void print_data(const char *tittle, const void* data, int len);
 int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
 int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
 
+int encrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method, encrypt_mode mode) {
+	int outl;
+	switch (mode) {
+		case AES128:
+			outl = encrypt_aes128(password, data, len, ans, method);
+			break;
+		case AES192:
+			outl = encrypt_aes192(password, data, len, ans, method);
+			break;
+		case AES256:
+			outl = encrypt_aes256(password, data, len, ans, method);
+			break;
+		case DES:
+			outl = encrypt_des(password, data, len, ans, method);
+			break;
+	}
+	return outl;
+}
+
 int encrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
 	int outl;
 	switch (method) {
@@ -79,6 +98,25 @@ int encrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encr
 			break;
 		case CBC:
 			outl = encrypt(password, data, len, ans,  EVP_des_ede3_cbc);
+			break;
+	}
+	return outl;
+}
+
+int decrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method, encrypt_mode mode) {
+	int outl;
+	switch (mode) {
+		case AES128:
+			outl = decrypt_aes128(password, data, len, ans, method);
+			break;
+		case AES192:
+			outl = decrypt_aes192(password, data, len, ans, method);
+			break;
+		case AES256:
+			outl = decrypt_aes256(password, data, len, ans, method);
+			break;
+		case DES:
+			outl = decrypt_des(password, data, len, ans, method);
 			break;
 	}
 	return outl;
@@ -173,10 +211,13 @@ void print_data(const char *tittle, const void* data, int len) {
 
 int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
+	unsigned int keyl, ivl;
 	unsigned int outl, templ;
 	char out[len];
-	BYTE key[TAM_CLAVE];
-	BYTE iv[TAM_CLAVE];
+	keyl = EVP_CIPHER_key_length(function());
+	ivl = EVP_CIPHER_iv_length(function());
+	BYTE key[keyl];
+	BYTE iv[ivl];
 	
 	/* Getting keys and iv */ 
 	// Salt is setting in NULL
@@ -202,10 +243,13 @@ int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 
 int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
-	BYTE out[len]; 
-	int outl, templ;
-    BYTE key[TAM_CLAVE];
-    BYTE iv[TAM_CLAVE];
+	unsigned int keyl, ivl;
+	unsigned int outl, templ;
+	char out[len];
+	keyl = EVP_CIPHER_key_length(function());
+	ivl = EVP_CIPHER_iv_length(function());
+    BYTE key[keyl];
+    BYTE iv[ivl];
 
 	/* Getting keys and iv */ 
 	// Salt is setting in NULL
@@ -220,9 +264,9 @@ int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 
 	/* Testing */
 	memcpy(ans, out, outl);
-	print_data("Encrypted", data, len*sizeof(char));
-	printf("%s\n", ans);
-	print_data("Decrypted", out, outl*sizeof(char));
+	// print_data("Encrypted", data, len*sizeof(char));
+	// printf("%s\n", ans);
+	// print_data("Decrypted", out, outl*sizeof(char));
 	
 	/* Clean context struct */ 
 	EVP_CIPHER_CTX_cleanup(&ctx);

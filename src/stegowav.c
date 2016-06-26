@@ -17,11 +17,6 @@ typedef unsigned char BYTE;
 #define LSB4 2
 #define LSBE 3
 
-#define AES128 1
-#define AES192 2
-#define AES256 3
-#define DES 4
-
 void error(char* msg) {
 	printf("%s\n", msg);
 	exit(1);
@@ -40,7 +35,7 @@ int main(int argc, char** argv) {
 	char out_file[512];
 	char in_file[512];
 	int steg_method = UNDEFINED;
-	int enc_algo = AES128;
+	encrypt_mode enc_algo = AES128;
 	encrypt_method mode = CBC;
 	char password[256];
 
@@ -160,7 +155,11 @@ int main(int argc, char** argv) {
 			if (function_type == EXTRACT) {
 				switch (steg_method) {
 					case LSB1:
-						get_from_LSB1(data_buffer, out_file, size_of_each_sample);
+						if (password[0] == '\0') {
+							get_from_LSB1(data_buffer, out_file, size_of_each_sample);	
+						} else {
+							get_from_LSB1_encrypted(data_buffer, out_file, size_of_each_sample, password, mode, enc_algo);	
+						}
 						break;
 					case LSB4:
 						get_from_LSB4(data_buffer, out_file, size_of_each_sample);
