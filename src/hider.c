@@ -213,10 +213,10 @@ void get_from_LSB4(const BYTE * data, const char * filename, int size_of_each_sa
 	for (i = 0; i < 4*sizeof(BYTE)*2; i++) {
 		get_LSB4(size_buffer, i, data[(i+1)*size_of_each_sample-1]);
 	}
-	size = size_buffer[0]<<24 
-		   | size_buffer[1] << 16 
-		   | size_buffer[2] << 8 
-		   | size_buffer[3];
+	size = size_buffer[0]<<24
+			| size_buffer[1] << 16
+			| size_buffer[2] << 8
+			|size_buffer[3];
 	print_data("number size", &size, 4);
 	
 	printf("%u\n", size);
@@ -227,7 +227,7 @@ void get_from_LSB4(const BYTE * data, const char * filename, int size_of_each_sa
 
 	char * extension = malloc(sizeof(char) * 20);
 	l = 0;
-	while (l == 0 || l % 2 != 0 || extension[l/2-1] != '\0') { 
+	while (l == 0 || l % 2 != 0 || extension[l/2-1] != '\0'){ 
 		get_LSB4(extension, l, data[(1+i+j+l)*size_of_each_sample-1]);
 		l++;
 	}
@@ -265,7 +265,7 @@ void get_from_LSBE(const BYTE * data, const char * filename, int size_of_each_sa
 		}
 		i++;
 	}
-	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 | size_buffer[3];
+	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 |size_buffer[3];
 
 	printf("%u\n", size);
 	printf("%d\n", bytes_read);
@@ -281,7 +281,7 @@ void get_from_LSBE(const BYTE * data, const char * filename, int size_of_each_sa
 
 	char * extension_buffer = malloc(sizeof(char) * 20);
 	l = 0;
-	while (l == 0 || l % 8 != 0 || extension_buffer[l/8-1] != '\0') { 
+	while (l == 0 || l % 8 != 0 || extension_buffer[l/8-1] != '\0'){ 
 		if (data[i] == 0xFF || data[i] == 0xFE) {
 			get_LSB1(extension_buffer, l, data[i]);
 			l++;
@@ -365,7 +365,7 @@ void get_from_LSB4_encrypted(const BYTE * data, const char * filename, int size_
 	size = size_buffer[0]<<24 
 		   | size_buffer[1] << 16 
 		   | size_buffer[2] << 8 
-		   | size_buffer[3];
+		   |size_buffer[3];
 	print_data("number size", &size, 4);
 	
 	printf("%u\n", size);
@@ -420,7 +420,7 @@ void get_from_LSBE_encrypted(const BYTE * data, const char * filename, int size_
 		}
 		i++;
 	}
-	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 | size_buffer[3];
+	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 |size_buffer[3];
 
 	printf("%u\n", size);
 	printf("%d\n", bytes_read);
