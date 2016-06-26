@@ -439,9 +439,89 @@ void get_from_LSBE_encrypted(const BYTE * data, const char * filename, int size_
 
 	BYTE * decrypted_message = calloc(size, sizeof(BYTE));
 	decrypt_with_mode(password, message, size, decrypted_message, encrypt_mode, method);
+
+	print_data("decrypted_message", decrypted_message, 4);
+	// int decrypted_size = (decrypted_message[0]>>24) & 0xFF;
+	// decrypted_size = (decrypted_message[1]>>16) & 0xFF;
+	// decrypted_size = (decrypted_message[2]>>8) & 0xFF;
+	// decrypted_size = (decrypted_message[3]) & 0xFF;
+	unsigned int decrypted_size = decrypted_message[0]<<24 
+		   | decrypted_message[1] << 16 
+		   | decrypted_message[2] << 8 
+		   | decrypted_message[3];
+
+	printf("decrypted_size : %d\n", decrypted_size);
+	char * extension = malloc(sizeof(char) * 20);
+	l = 0;
+	while (decrypted_message[decrypted_size + l + 4] != '\0') { 
+		extension[l] = decrypted_message[decrypted_size + l + 4];
+		l++;
+	}
+	extension[l] = '\0';
+	char * full_filename = malloc(strlen(filename) + strlen(extension));
+	strcat(full_filename, filename);
+	strcat(full_filename, extension);
+
+	FILE * ptr = fopen(full_filename, "wb");
 	fwrite(message, size, 1, ptr);	
 	closeFile(ptr);
 	free(message);			
 	free(size_buffer);
+}
+
+void apply_LSB1_encrypted(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size, char * password, encrypt_mode encrypt_mode, encrypt_method method) {
+	int i;
+	FILE * ptr = openFile(hide_filename);
+	int hidden_file_size = getLen(ptr);
+	char* extension = get_extension(hide_filename);
+	int extension_size = strlen(extension);
+
+	int content_size = 4*sizeof(BYTE) + hidden_file_size + extension_size + 2; // +2 for the '.' and the '\0'
+	BYTE * hide_buffer = calloc(content_size, sizeof(BYTE));
+	hide_buffer[0] = (hidden_file_size >> 24) & 0xFF;
+	hide_buffer[1] = (hidden_file_size >> 16) & 0xFF;
+	hide_buffer[2] = (hidden_file_size >> 8) & 0xFF;
+	hide_buffer[3] = hidden_file_size & 0xFF;
+
+	print_data("size in buffer", hide_buffer, 4);
+
+	int read = fread(hide_buffer+4, 1, hidden_file_size, ptr);
+	if (read == 0) {
+		printf("Error: fail to read file %s\n", hide_filename);
+		exit(1);
+	}
+
+	hide_buffer[hidden_file_size + 4] = '.';
+	for (i = 0; i <= extension_size; i++) {
+		hide_buffer[hidden_file_size + 5 + i] = extension[i];
+	}
+
+	print_data("data a esconder completa:", hide_buffer, content_size);
+
+	int encrypted_max_size = content_size + EVP_MAX_BLOCK_LENGTH - 1;
+	BYTE* encrypted_message = calloc(4 + encrypted_max_size, sizeof(BYTE));
+	int encrypted_size = encrypt_with_mode(password, hide_buffer, content_size, encrypted_message + 4, method, encrypt_mode);
+	encrypted_message[0] = (encrypted_size >> 24) & 0xFF;
+	encrypted_message[1] = (encrypted_size >> 16) & 0xFF;
+	encrypted_message[2] = (encrypted_size >> 8) & 0xFF;
+	encrypted_message[3] = encrypted_size & 0xFF;
+
+	if (encrypted_size > sizeof(BYTE) * data_size/ size_of_each_sample / 8) {
+		printf("Error: the message doesn't fit data: %d\n", sizeof(BYTE) * data_size / size_of_each_sample);
+		exit(1);
+	}
+	for (i = 0; i < encrypted_size + 4; i ++) {
+		put_LSB1(data, (i*8+1)*size_of_each_sample - 1, size_of_each_sample, encrypted_message[i]);
+	}
+	i = fwrite(data, 1, data_size, file_to_write);	
+	closeFile(ptr);		
+	free(hide_buffer);	
+	free(encrypted_message);		
+}
+
+void apply_LSB4_encrypted(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size, char * password, encrypt_mode encrypt_mode, encrypt_method method) {
+}
+
+void apply_LSBE_encrypted(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size, char * password, encrypt_mode encrypt_mode, encrypt_method method) {
 }
 

@@ -213,7 +213,7 @@ int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 	EVP_CIPHER_CTX ctx;
 	unsigned int keyl, ivl;
 	unsigned int outl, templ;
-	char out[len];
+	char out[len + EVP_MAX_BLOCK_LENGTH - 1];
 	keyl = EVP_CIPHER_key_length(function());
 	ivl = EVP_CIPHER_iv_length(function());
 	BYTE key[keyl];

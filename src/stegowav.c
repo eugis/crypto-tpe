@@ -23,6 +23,25 @@ void error(char* msg) {
 }
 
 int main(int argc, char** argv) {
+
+	char data[] = "hola cómo estás"; 
+	size_t len = strlen(data);
+	BYTE* ans = malloc(len*sizeof(char));
+	BYTE* ans_d = malloc(len*sizeof(char));
+	int i = encrypt_aes192("12345678", data, len, ans, CBC);
+	int j = decrypt_aes192("12345678", ans, i, ans_d, CBC);
+
+	printf("%s\n", ans_d);
+
+	free(ans);
+	free(ans_d);
+
+	
+	return 0;
+
+}
+
+int main2(int argc, char** argv) {
 	printf("Bienvenido a stegowav\n");
 	printf("Hola mundo les da la bienvenida\n");
 
@@ -169,7 +188,11 @@ int main(int argc, char** argv) {
 						}
 						break;
 					case LSBE:
-						get_from_LSBE(data_buffer, out_file, size_of_each_sample);
+						if (password[0] == '\0') {
+							get_from_LSBE(data_buffer, out_file, size_of_each_sample);
+						} else {
+							get_from_LSBE_encrypted(data_buffer, out_file, size_of_each_sample, password, mode, enc_algo);	
+						}
 						break;
 				}
 				fwrite(data_buffer, sizeof(data_buffer), 1, out_ptr);	
@@ -180,13 +203,25 @@ int main(int argc, char** argv) {
 				}
 				switch (steg_method) {
 					case LSB1:
-						apply_LSB1(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
+						if (password[0] == '\0') {
+							apply_LSB1(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
+						} else {
+							apply_LSB1_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, mode, enc_algo);
+						}
 						break;
 					case LSB4:
-						apply_LSB4(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
+						if (password[0] == '\0') {
+							apply_LSB4(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
+						} else {
+							apply_LSB4_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, mode, enc_algo);
+						}
 						break;
 					case LSBE:
-						apply_LSBE(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
+						if (password[0] == '\0') {
+							apply_LSBE(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
+						} else {
+							apply_LSBE_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, mode, enc_algo);
+						}
 						break;
 				}
 			}	

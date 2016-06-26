@@ -14,3 +14,6 @@ void get_from_LSB4(const BYTE * data, const char * filename, int size_of_each_sa
 void get_from_LSBE(const BYTE * data, const char * filename, int size_of_each_sample);
 void get_from_LSB1_encrypted(const BYTE * data, const char * filename, int size_of_each_sample, char * password, encrypt_mode encrypt_mode, encrypt_method method);
 void get_from_LSB4_encrypted(const BYTE * data, const char * filename, int size_of_each_sample, char * password, encrypt_mode encrypt_mode, encrypt_method method);
+void apply_LSB1_encrypted(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size, char * password, encrypt_mode encrypt_mode, encrypt_method method);
+void apply_LSB4_encrypted(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size, char * password, encrypt_mode encrypt_mode, encrypt_method method);
+void apply_LSBE_encrypted(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size, char * password, encrypt_mode encrypt_mode, encrypt_method method);
