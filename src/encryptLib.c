@@ -8,7 +8,7 @@ void print_data(const char *tittle, const void* data, int len);
 int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
 int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
 
-int encrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method, encrypt_mode mode) {
+int encrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_mode mode, encrypt_method method) {
 	int outl;
 	switch (mode) {
 		case AES128:
@@ -103,7 +103,7 @@ int encrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encr
 	return outl;
 }
 
-int decrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method, encrypt_mode mode) {
+int decrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_mode mode, encrypt_method method) {
 	int outl;
 	switch (mode) {
 		case AES128:
@@ -232,9 +232,9 @@ int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 	memcpy(ans, out, outl);
 
 	/* Testing */
-	print_data("Original ", data, len*sizeof(char)); // you can not print data as a string, because after Encryption its not ASCII
-	printf("%s\n", data);
-	print_data("Encrypted", ans, outl*sizeof(BYTE));
+	// print_data("Original ", data, len*sizeof(char)); // you can not print data as a string, because after Encryption its not ASCII
+	// printf("%s\n", data);
+	// print_data("Encrypted", ans, outl*sizeof(BYTE));
 	
 	/* Clean context struct */ 
 	EVP_CIPHER_CTX_cleanup(&ctx);

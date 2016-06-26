@@ -27,12 +27,12 @@ int encrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 int encrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int encrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int encrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
-int encrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method, encrypt_mode mode);
+int encrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_mode mode, encrypt_method method);
 
 int decrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int decrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int decrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
 int decrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method);
-int decrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method, encrypt_mode mode);
+int decrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_mode mode, encrypt_method method);
 
 #endif

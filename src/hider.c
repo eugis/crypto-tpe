@@ -375,9 +375,6 @@ void get_from_LSB4_encrypted(const BYTE * data, const char * filename, int size_
 	}
 	BYTE * decrypted_message = calloc(size, sizeof(BYTE));
 	decrypt_with_mode(password, message, size, decrypted_message, encrypt_mode, method);
-	printf("%s\n", password);
-	printf("%d\n", method);
-	printf("%d\n", encrypt_mode);	
 
 	print_data("decrypted_message", decrypted_message, 4);
 	// int decrypted_size = (decrypted_message[0]>>24) & 0xFF;
@@ -498,13 +495,19 @@ void apply_LSB1_encrypted(BYTE * data, FILE * file_to_write, const char * hide_f
 
 	print_data("data a esconder completa:", hide_buffer, content_size);
 
+	printf("asd %d %d\n", encrypt_mode, method);
+
 	int encrypted_max_size = content_size + EVP_MAX_BLOCK_LENGTH - 1;
 	BYTE* encrypted_message = calloc(4 + encrypted_max_size, sizeof(BYTE));
-	int encrypted_size = encrypt_with_mode(password, hide_buffer, content_size, encrypted_message + 4, method, encrypt_mode);
+	int encrypted_size = encrypt_with_mode(password, hide_buffer, content_size, encrypted_message + 4, encrypt_mode, method);
 	encrypted_message[0] = (encrypted_size >> 24) & 0xFF;
 	encrypted_message[1] = (encrypted_size >> 16) & 0xFF;
 	encrypted_message[2] = (encrypted_size >> 8) & 0xFF;
 	encrypted_message[3] = encrypted_size & 0xFF;
+
+	print_data("escrypted data:", encrypted_message, encrypted_size + 4);
+
+	printf("%d\n", encrypted_size);
 
 	if (encrypted_size > sizeof(BYTE) * data_size/ size_of_each_sample / 8) {
 		printf("Error: the message doesn't fit data: %d\n", sizeof(BYTE) * data_size / size_of_each_sample);

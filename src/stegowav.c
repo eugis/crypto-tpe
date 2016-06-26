@@ -22,16 +22,16 @@ void error(char* msg) {
 	exit(1);
 }
 
-int main(int argc, char** argv) {
+int main2(int argc, char** argv) {
 
-	char data[] = "hola cómo estás"; 
+	char data[] = "\nhola mundo\n"; 
 	size_t len = strlen(data);
 	BYTE* ans = malloc(len*sizeof(char));
 	BYTE* ans_d = malloc(len*sizeof(char));
 	int i = encrypt_aes192("12345678", data, len, ans, CBC);
 	int j = decrypt_aes192("12345678", ans, i, ans_d, CBC);
 
-	printf("%s\n", ans_d);
+	printf("%d %d\n", strlen(ans), strlen(ans_d));
 
 	free(ans);
 	free(ans_d);
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 
 }
 
-int main2(int argc, char** argv) {
+int main(int argc, char** argv) {
 	printf("Bienvenido a stegowav\n");
 	printf("Hola mundo les da la bienvenida\n");
 
@@ -54,8 +54,8 @@ int main2(int argc, char** argv) {
 	char out_file[512];
 	char in_file[512];
 	int steg_method = UNDEFINED;
-	encrypt_mode enc_algo = AES128;
-	encrypt_method mode = CBC;
+	encrypt_mode enc_mode = AES128;
+	encrypt_method enc_method = CBC;
 	char password[256];
 
 	host_file[0] = '\0';
@@ -103,25 +103,25 @@ int main2(int argc, char** argv) {
 			}
 		} else if (strcmp(argv[i], "-a") == 0) {
 			if (strcmp(argv[i + 1], "aes128") == 0) {
-				enc_algo = AES128;
+				enc_mode = AES128;
 			} else if (strcmp(argv[i + 1], "aes192") == 0) {
-				enc_algo = AES192;
+				enc_mode = AES192;
 			} else if (strcmp(argv[i + 1], "aes256") == 0) {
-				enc_algo = AES256;
+				enc_mode = AES256;
 			} else if (strcmp(argv[i + 1], "des") == 0) {
-				enc_algo = DES;
+				enc_mode = DES;
 			} else {
 				error("El algoritmo de encripcion recibido no es soportado. Las opciones son aes128, aes192, aes256 y des.");
 			}
 		} else if (strcmp(argv[i], "-m") == 0) {
 			if (strcmp(argv[i + 1], "ecb") == 0) {
-				mode = ECB;
+				enc_method = ECB;
 			} else if (strcmp(argv[i + 1], "cfb") == 0) {
-				mode = CFB;
+				enc_method = CFB;
 			} else if (strcmp(argv[i + 1], "ofb") == 0) {
-				mode = OFB;
+				enc_method = OFB;
 			} else if (strcmp(argv[i + 1], "cbc") == 0) {
-				mode = CBC;
+				enc_method = CBC;
 			} else {
 				error("El modo de encripcion recibido no es soportado. Las opciones son ecb, cfb, ofb y cbc.");
 			}
@@ -177,21 +177,21 @@ int main2(int argc, char** argv) {
 						if (password[0] == '\0') {
 							get_from_LSB1(data_buffer, out_file, size_of_each_sample);	
 						} else {
-							get_from_LSB1_encrypted(data_buffer, out_file, size_of_each_sample, password, mode, enc_algo);	
+							get_from_LSB1_encrypted(data_buffer, out_file, size_of_each_sample, password, enc_mode, enc_method);	
 						}
 						break;
 					case LSB4:
 						if (password[0] == '\0') {
 							get_from_LSB4(data_buffer, out_file, size_of_each_sample);
 						} else {
-							get_from_LSB4_encrypted(data_buffer, out_file, size_of_each_sample, password, mode, enc_algo);	
+							get_from_LSB4_encrypted(data_buffer, out_file, size_of_each_sample, password, enc_mode, enc_method);
 						}
 						break;
 					case LSBE:
 						if (password[0] == '\0') {
 							get_from_LSBE(data_buffer, out_file, size_of_each_sample);
 						} else {
-							get_from_LSBE_encrypted(data_buffer, out_file, size_of_each_sample, password, mode, enc_algo);	
+							get_from_LSBE_encrypted(data_buffer, out_file, size_of_each_sample, password, enc_mode, enc_method);
 						}
 						break;
 				}
@@ -206,21 +206,21 @@ int main2(int argc, char** argv) {
 						if (password[0] == '\0') {
 							apply_LSB1(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
 						} else {
-							apply_LSB1_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, mode, enc_algo);
+							apply_LSB1_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, enc_mode, enc_method);
 						}
 						break;
 					case LSB4:
 						if (password[0] == '\0') {
 							apply_LSB4(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
 						} else {
-							apply_LSB4_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, mode, enc_algo);
+							apply_LSB4_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, enc_mode, enc_method);
 						}
 						break;
 					case LSBE:
 						if (password[0] == '\0') {
 							apply_LSBE(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size);
 						} else {
-							apply_LSBE_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, mode, enc_algo);
+							apply_LSBE_encrypted(data_buffer, out_ptr, full_in_file_path, size_of_each_sample, file_header.data_size, password, enc_mode, enc_method);
 						}
 						break;
 				}
