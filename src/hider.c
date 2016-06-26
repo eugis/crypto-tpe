@@ -397,7 +397,6 @@ void get_from_LSB4_encrypted(const BYTE * data, const char * filename, int size_
 		l++;
 	}
 	extension[l] = '\0';
-	
 	char * full_filename = malloc(strlen(filename) + strlen(extension));
 	strcat(full_filename, filename);
 	strcat(full_filename, extension);
@@ -409,3 +408,40 @@ void get_from_LSB4_encrypted(const BYTE * data, const char * filename, int size_
 	free(size_buffer);
 	free(extension);		
 }
+
+void get_from_LSBE_encrypted(const BYTE * data, const char * filename, int size_of_each_sample, char * password, encrypt_mode encrypt_mode, encrypt_method method) {
+	int i, l;
+	BYTE* size_buffer = calloc(4, sizeof(BYTE));
+	unsigned int size = 0;
+	int bytes_read = 0;
+	i = 0;
+	while(bytes_read < 4 * sizeof(BYTE)* 8) {
+		if (data[i] == 0xFF || data[i] == 0xFE) {
+			get_LSB1(size_buffer, bytes_read, data[i]);
+			printf("%d", data[i]-254);
+			bytes_read++;
+		}
+		i++;
+	}
+	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 | size_buffer[3];
+
+	printf("%u\n", size);
+	printf("%d\n", bytes_read);
+	bytes_read = 0;
+	BYTE * message = malloc(size * sizeof(BYTE));
+	while(bytes_read < size*8) {
+		if (data[i] == 0xFF || data[i] == 0xFE) {
+			get_LSB1(message, bytes_read, data[i]);
+			bytes_read++;
+		}
+		i++;
+	}
+
+	BYTE * decrypted_message = calloc(size, sizeof(BYTE));
+	decrypt_with_mode(password, message, size, decrypted_message, encrypt_mode, method);
+	fwrite(message, size, 1, ptr);	
+	closeFile(ptr);
+	free(message);			
+	free(size_buffer);
+}
+
