@@ -354,3 +354,58 @@ void get_from_LSB1_encrypted(const BYTE * data, const char * filename, int size_
 	free(size_buffer);	
 	free(extension);
 }
+
+void get_from_LSB4_encrypted(const BYTE * data, const char * filename, int size_of_each_sample, char * password, encrypt_mode encrypt_mode, encrypt_method method) {
+	int i, j, k, l;
+	BYTE* size_buffer = calloc(4, sizeof(BYTE));
+	unsigned int size = 0;
+	for (i = 0; i < 4*sizeof(BYTE)*2; i++) {
+		get_LSB4(size_buffer, i, data[(i+1)*size_of_each_sample-1]);
+	}
+	size = size_buffer[0]<<24 
+		   | size_buffer[1] << 16 
+		   | size_buffer[2] << 8 
+		   | size_buffer[3];
+	print_data("number size", &size, 4);
+	
+	printf("%u\n", size);
+	BYTE * message = malloc(size);
+	for (j = 0; j < size*2; j++) {
+		get_LSB4(message, j, data[(j+i+1)*size_of_each_sample-1]);	
+	}
+	BYTE * decrypted_message = calloc(size, sizeof(BYTE));
+	decrypt_with_mode(password, message, size, decrypted_message, encrypt_mode, method);
+	printf("%s\n", password);
+	printf("%d\n", method);
+	printf("%d\n", encrypt_mode);	
+
+	print_data("decrypted_message", decrypted_message, 4);
+	// int decrypted_size = (decrypted_message[0]>>24) & 0xFF;
+	// decrypted_size = (decrypted_message[1]>>16) & 0xFF;
+	// decrypted_size = (decrypted_message[2]>>8) & 0xFF;
+	// decrypted_size = (decrypted_message[3]) & 0xFF;
+	unsigned int decrypted_size = decrypted_message[0]<<24 
+		   | decrypted_message[1] << 16 
+		   | decrypted_message[2] << 8 
+		   | decrypted_message[3];
+
+	printf("decrypted_size : %d\n", decrypted_size);
+	char * extension = malloc(sizeof(char) * 20);
+	l = 0;
+	while (decrypted_message[decrypted_size + l + 4] != '\0') { 
+		extension[l] = decrypted_message[decrypted_size + l + 4];
+		l++;
+	}
+	extension[l] = '\0';
+	
+	char * full_filename = malloc(strlen(filename) + strlen(extension));
+	strcat(full_filename, filename);
+	strcat(full_filename, extension);
+
+	FILE * ptr = fopen(full_filename, "wb");
+	fwrite(message, size, 1, ptr);		
+	closeFile(ptr);
+	free(message);			
+	free(size_buffer);
+	free(extension);		
+}

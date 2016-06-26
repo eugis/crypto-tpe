@@ -162,7 +162,11 @@ int main(int argc, char** argv) {
 						}
 						break;
 					case LSB4:
-						get_from_LSB4(data_buffer, out_file, size_of_each_sample);
+						if (password[0] == '\0') {
+							get_from_LSB4(data_buffer, out_file, size_of_each_sample);
+						} else {
+							get_from_LSB4_encrypted(data_buffer, out_file, size_of_each_sample, password, mode, enc_algo);	
+						}
 						break;
 					case LSBE:
 						get_from_LSBE(data_buffer, out_file, size_of_each_sample);
