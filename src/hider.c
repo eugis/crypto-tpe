@@ -34,26 +34,17 @@ void apply_LSB1(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 	}
 
 	print_data("data a esconder completa:", hide_buffer, content_size);
-	// int data_size2 = strlen(data);
-	// printf("Data size: %d\n", data_size2);
-	// printf("Data size original: %d\n", data_size);
-	// printf("Size of sample: %d\n", size_of_each_sample);
-	// printf("Content size: %d\n", content_size);
 
-	// print_data(data_size, data, data_size2);
 	if ( content_size > sizeof(BYTE) * data_size/ size_of_each_sample / 8) {
 		printf("Error: the message doesn't fit data: %d\n", sizeof(BYTE) * data_size / size_of_each_sample);
 		exit(1);
 	}
-
-	// printf("-------------------------------------------------------------------\n");
-	// print_data("data bytes:", data, 4*size_of_each_sample*8);
 	for (i = 0; i < content_size; i ++) {
 		put_LSB1(data, (i*8+1)*size_of_each_sample - 1, size_of_each_sample, hide_buffer[i]);
 	}
-	// print_data("data bytes after lsb1:", data, 4*size_of_each_sample*8);
-	// printf("-------------------------------------------------------------------\n");
-	i = fwrite(data, 1, data_size, file_to_write);				
+	i = fwrite(data, 1, data_size, file_to_write);	
+	closeFile(ptr);		
+	free(hide_buffer);			
 }
 
 void apply_LSB4(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size) {
@@ -92,7 +83,9 @@ void apply_LSB4(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 	for (i = 0; i < content_size; i ++) {
 		put_LSB4(data, (i*2+1)*size_of_each_sample - 1, size_of_each_sample, hide_buffer[i]);
 	}
-	i = fwrite(data, 1, data_size, file_to_write);				
+	i = fwrite(data, 1, data_size, file_to_write);	
+	closeFile(file_to_write);
+	free(hide_buffer);			
 }
 
 void apply_LSBE(BYTE * data, FILE * file_to_write, const char * hide_filename, int size_of_each_sample, int data_size) {
@@ -143,6 +136,8 @@ void apply_LSBE(BYTE * data, FILE * file_to_write, const char * hide_filename, i
 		i++;
 	}
 	i = fwrite(data, 1, data_size, file_to_write);	
+	closeFile(file_to_write);
+	free(hide_buffer);
 }
 
 // index: first index to write in out 
@@ -171,12 +166,12 @@ void put_LSB4(BYTE * out, int index, int size_of_each_sample, BYTE data) {
 
 void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sample) {
 	int i, j, k, l;
-	BYTE* a = calloc(4, sizeof(BYTE));
+	BYTE* size_buffer = calloc(4, sizeof(BYTE));
 	unsigned int size = 0;
 	for (i = 0; i < sizeof(unsigned int)*8; i++) {
-		get_LSB1(a, i, data[(i+1)*size_of_each_sample-1]);
+		get_LSB1(size_buffer, i, data[(i+1)*size_of_each_sample-1]);
 	}
-	size = a[0]<<24 | a[1] << 16 | a[2] << 8 |a[3];
+	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 | size_buffer[3];
 	printf("%x\n", size);
 	print_data("number size", &size, 4);
 	BYTE * message = malloc(size);
@@ -184,20 +179,23 @@ void get_from_LSB1(const BYTE * data, const char * filename, int size_of_each_sa
 		get_LSB1(message, j, data[(j+i+1)*size_of_each_sample-1]);	
 	}
 
-	char * b = malloc(sizeof(char) * 20);
+	char * extension = malloc(sizeof(char) * 20);
 	l = 0;
-	while (l == 0 || l % 8 != 0 || b[l/8-1] != '\0'){ 
-		get_LSB1(b, l, data[(1+i+j+l)*size_of_each_sample-1]);
+	while (l == 0 || l % 8 != 0 || extension[l/8-1] != '\0'){ 
+		get_LSB1(extension, l, data[(1+i+j+l)*size_of_each_sample-1]);
 		l++;
 	}
-	char * full_filename = malloc(strlen(filename) + strlen(b));
+	char * full_filename = malloc(strlen(filename) + strlen(extension));
 	strcat(full_filename, filename);
-	strcat(full_filename, b);
+	strcat(full_filename, extension);
 	print_data("message:", message, size);
-	printf("mess: %s \n Filename: %s \nExtension: %s\n", message, full_filename, b);
+	printf("mess: %s \n Filename: %s \nExtension: %s\n", message, full_filename, extension);
 	FILE * ptr = fopen(full_filename, "wb");
 	fwrite(message, size, 1, ptr);	
-	closeFile(ptr);			
+	closeFile(ptr);
+	free(message);			
+	free(size_buffer);	
+	free(extension);
 }
 
 // Change this method
@@ -227,18 +225,22 @@ void get_from_LSB4(const BYTE * data, const char * filename, int size_of_each_sa
 		get_LSB4(message, j, data[(j+i+1)*size_of_each_sample-1]);	
 	}
 
-	char * b = malloc(sizeof(char) * 20);
+	char * extension = malloc(sizeof(char) * 20);
 	l = 0;
-	while (l == 0 || l % 2 != 0 || b[l/2-1] != '\0') { 
-		get_LSB4(b, l, data[(1+i+j+l)*size_of_each_sample-1]);
+	while (l == 0 || l % 2 != 0 || extension[l/2-1] != '\0') { 
+		get_LSB4(extension, l, data[(1+i+j+l)*size_of_each_sample-1]);
 		l++;
 	}
-	char * full_filename = malloc(strlen(filename) + strlen(b));
+	char * full_filename = malloc(strlen(filename) + strlen(extension));
 	strcat(full_filename, filename);
-	strcat(full_filename, b);
+	strcat(full_filename, extension);
 
 	FILE * ptr = fopen(full_filename, "wb");
-	fwrite(message, size, 1, ptr);				
+	fwrite(message, size, 1, ptr);		
+	closeFile(ptr);
+	free(message);			
+	free(size_buffer);
+	free(extension);		
 }
 
 // TODO: Change this method
@@ -291,5 +293,8 @@ void get_from_LSBE(const BYTE * data, const char * filename, int size_of_each_sa
 	strcat(full_filename, extension_buffer);
 
 	FILE * ptr = fopen(full_filename, "wb");
-	fwrite(message, size, 1, ptr);				
+	fwrite(message, size, 1, ptr);	
+	closeFile(ptr);
+	free(message);			
+	free(size_buffer);
 }
