@@ -1,6 +1,6 @@
-## crypto-tpe
+# crypto-tpe
 
-# Compilation of stegowav
+## Compilation of stegowav
 
     To be able to compile stegowav in linux, you should have installed the libraries of openssl:
         * openssl
@@ -8,9 +8,9 @@
     
     The you just run 'make' command inside crypto-tpe folder
 
-# Running stegowav
+## Running stegowav
 
-    To run stegowav you just need to be in crypto-tpe folder and run stegowav with any combination of the followin parameters:
+    To run stegowav you just need to be in crypto-tpe folder and run stegowav with any combination of the following parameters:
     
         To hide information:
             -embed 
