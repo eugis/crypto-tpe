@@ -4,12 +4,12 @@
 #include <string.h>
 #include <openssl/aes.h>
 
-void print_data(const char *tittle, const void* data, int len);
-int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
-int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function);
+void print_data(const char *tittle, const void* data, uint32_t len);
+uint32_t decrypt(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_function function);
+uint32_t encrypt(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_function function);
 
-int encrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_mode mode, encrypt_method method) {
-	int outl;
+uint32_t encrypt_with_mode(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_mode mode, encrypt_method method) {
+	uint32_t outl;
 	switch (mode) {
 		case AES128:
 			outl = encrypt_aes128(password, data, len, ans, method);
@@ -27,8 +27,8 @@ int encrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans
 	return outl;
 }
 
-int encrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl;
+uint32_t encrypt_aes128(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+	uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = encrypt(password, data, len, ans, EVP_aes_128_ecb);
@@ -46,8 +46,8 @@ int encrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 	return outl;
 }
 
-int encrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl;
+uint32_t encrypt_aes192(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+	uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = encrypt(password, data, len, ans, EVP_aes_192_ecb);
@@ -65,8 +65,8 @@ int encrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 	return outl;
 }
 
-int encrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl;
+uint32_t encrypt_aes256(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+	uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = encrypt(password, data, len, ans, EVP_aes_256_ecb);
@@ -84,8 +84,8 @@ int encrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 	return outl;
 }
 
-int encrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl;
+uint32_t encrypt_des(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+	uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = encrypt(password, data, len, ans, EVP_des_ede3_ecb);
@@ -103,8 +103,8 @@ int encrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encr
 	return outl;
 }
 
-int decrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_mode mode, encrypt_method method) {
-	int outl;
+uint32_t decrypt_with_mode(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_mode mode, encrypt_method method) {
+	uint32_t outl;
 	switch (mode) {
 		case AES128:
 			outl = decrypt_aes128(password, data, len, ans, method);
@@ -122,8 +122,8 @@ int decrypt_with_mode(const BYTE *password, const BYTE* data, int len, BYTE* ans
 	return outl;
 }
 
-int decrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-    int outl;
+uint32_t decrypt_aes128(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+    uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = decrypt(password, data, len, ans, EVP_aes_128_ecb);
@@ -141,8 +141,8 @@ int decrypt_aes128(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 	return outl;
 }
 
-int decrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl;
+uint32_t decrypt_aes192(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+	uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = decrypt(password, data, len, ans, EVP_aes_192_ecb);
@@ -160,8 +160,8 @@ int decrypt_aes192(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 	return outl;
 }
 
-int decrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl;
+uint32_t decrypt_aes256(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+	uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = decrypt(password, data, len, ans, EVP_aes_256_ecb);
@@ -179,8 +179,8 @@ int decrypt_aes256(const BYTE *password, const BYTE* data, int len, BYTE* ans, e
 	return outl;
 }
 
-int decrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_method method) {
-	int outl;
+uint32_t decrypt_des(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_method method) {
+	uint32_t outl;
 	switch (method) {
 		case ECB:
 			outl = decrypt(password, data, len, ans, EVP_des_ede3_ecb);
@@ -198,10 +198,10 @@ int decrypt_des(const BYTE *password, const BYTE* data, int len, BYTE* ans, encr
 	return outl;
 }
 
-void print_data(const char *tittle, const void* data, int len) {
+void print_data(const char *tittle, const void* data, uint32_t len) {
 	printf("%s : ",tittle);
 	const BYTE * p = (const BYTE*)data;
-	int i = 0;
+	uint32_t i = 0;
 	
 	for (; i<len; ++i)
 		printf("%02X ", *p++);
@@ -209,10 +209,10 @@ void print_data(const char *tittle, const void* data, int len) {
 	printf("\n");
 }
 
-int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function) {
+uint32_t encrypt(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
-	unsigned int keyl, ivl;
-	unsigned int outl, templ;
+	uint32_t keyl = 0, ivl = 0;
+	uint32_t outl = 0, templ = 0;
 	char *out = calloc(len + EVP_MAX_BLOCK_LENGTH - 1, sizeof(char));
 	keyl = EVP_CIPHER_key_length(function());
 	ivl = EVP_CIPHER_iv_length(function());
@@ -237,10 +237,10 @@ int encrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_
 	return outl;
 }
 
-int decrypt(const BYTE *password, const BYTE* data, int len, BYTE* ans, encrypt_function function) {
+uint32_t decrypt(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
-	unsigned int keyl, ivl;
-	unsigned int outl, templ;
+	uint32_t keyl = 0, ivl = 0;
+	uint32_t outl = 0, templ = 0;
 	char *out = calloc(len, sizeof(char));
 	keyl = EVP_CIPHER_key_length(function());
 	ivl = EVP_CIPHER_iv_length(function());
