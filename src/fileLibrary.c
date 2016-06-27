@@ -17,8 +17,8 @@ void close_file(FILE * ptr) {
 	fclose(ptr);
 }
 
-unsigned int get_len(FILE* file) {
-	unsigned int len;
+uint32_t get_len(FILE* file) {
+	uint32_t len;
 	fseek(file, 0L, SEEK_END);
 	len = ftell(file);
 	rewind(file);
