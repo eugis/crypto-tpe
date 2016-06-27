@@ -163,18 +163,18 @@ void get_from_LSB1(const BYTE * data, const char * filename, uint32_t size_of_ea
 	}
 	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 | size_buffer[3];
 
-	BYTE * message = malloc(size);
+	BYTE * message = calloc(size, sizeof(BYTE));
 	for (j = 0; j < size*8; j++) {
 		get_LSB1(message, j, data[(j+i+1)*size_of_each_sample-1]);	
 	}
 
-	char * extension = malloc(sizeof(char) * 20);
+	char * extension = calloc(20, sizeof(char));
 	l = 0;
 	while (l == 0 || l % 8 != 0 || extension[l/8-1] != '\0'){ 
 		get_LSB1(extension, l, data[(1+i+j+l)*size_of_each_sample-1]);
 		l++;
 	}
-	char * full_filename = malloc(strlen(filename) + strlen(extension));
+	char * full_filename = calloc(strlen(filename) + strlen(extension), sizeof(char));
 	strcat(full_filename, filename);
 	strcat(full_filename, extension);
 	FILE * ptr = open_file(full_filename, "wb");
@@ -206,18 +206,18 @@ void get_from_LSB4(const BYTE * data, const char * filename, uint32_t size_of_ea
 			|size_buffer[3];
 	
 	printf("%u\n", size);
-	BYTE * message = malloc(size);
+	BYTE * message = calloc(size, sizeof(BYTE));
 	for (j = 0; j < size*2; j++) {
 		get_LSB4(message, j, data[(j+i+1)*size_of_each_sample-1]);	
 	}
 
-	char * extension = malloc(sizeof(char) * 20);
+	char * extension = calloc(20, sizeof(char));
 	l = 0;
 	while (l == 0 || l % 2 != 0 || extension[l/2-1] != '\0'){ 
 		get_LSB4(extension, l, data[(1+i+j+l)*size_of_each_sample-1]);
 		l++;
 	}
-	char * full_filename = malloc(strlen(filename) + strlen(extension));
+	char * full_filename = calloc(strlen(filename) + strlen(extension), sizeof(char));
 	strcat(full_filename, filename);
 	strcat(full_filename, extension);
 
@@ -253,7 +253,7 @@ void get_from_LSBE(const BYTE * data, const char * filename, uint32_t size_of_ea
 	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 |size_buffer[3];
 
 	bytes_read = 0;
-	BYTE * message = malloc(size * sizeof(BYTE));
+	BYTE * message = calloc(size, sizeof(BYTE));
 	while(bytes_read < size*8) {
 		if (data[i] == 0xFF || data[i] == 0xFE) {
 			get_LSB1(message, bytes_read, data[i]);
@@ -262,7 +262,7 @@ void get_from_LSBE(const BYTE * data, const char * filename, uint32_t size_of_ea
 		i++;
 	}
 
-	char * extension_buffer = malloc(sizeof(char) * 20);
+	char * extension_buffer = calloc(20, sizeof(char));
 	l = 0;
 	while (l == 0 || l % 8 != 0 || extension_buffer[l/8-1] != '\0'){ 
 		if (data[i] == 0xFF || data[i] == 0xFE) {
@@ -271,7 +271,7 @@ void get_from_LSBE(const BYTE * data, const char * filename, uint32_t size_of_ea
 		}
 		i++;
 	}
-	char * full_filename = malloc(strlen(filename) + strlen(extension_buffer));
+	char * full_filename = calloc(strlen(filename) + strlen(extension_buffer), sizeof(char));
 	strcat(full_filename, filename);
 	strcat(full_filename, extension_buffer);
 
@@ -291,7 +291,7 @@ void get_from_LSB1_encrypted(const BYTE * data, const char * filename, uint32_t 
 	}
 	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 | size_buffer[3];
 
-	BYTE * message = malloc(size);
+	BYTE * message = calloc(size, sizeof(BYTE));
 	for (j = 0; j < size*8; j++) {
 		get_LSB1(message, j, data[(j+i+1)*size_of_each_sample-1]);	
 	}
@@ -304,7 +304,7 @@ void get_from_LSB1_encrypted(const BYTE * data, const char * filename, uint32_t 
 		   | decrypted_message[2] << 8 
 		   | decrypted_message[3];
 
-	char * extension = malloc(sizeof(char) * 20);
+	char * extension = calloc(20, sizeof(char));
 	l = 0;
 	while (decrypted_message[decrypted_size + l + 4] != '\0') { 
 		extension[l] = decrypted_message[decrypted_size + l + 4];
@@ -312,7 +312,7 @@ void get_from_LSB1_encrypted(const BYTE * data, const char * filename, uint32_t 
 	}
 	extension[l] = '\0';
 
-	char * full_filename = malloc(strlen(filename) + strlen(extension));
+	char * full_filename = calloc(strlen(filename) + strlen(extension), sizeof(char));
 	strcat(full_filename, filename);
 	strcat(full_filename, extension);
 
@@ -338,7 +338,7 @@ void get_from_LSB4_encrypted(const BYTE * data, const char * filename, uint32_t 
 		   | size_buffer[2] << 8 
 		   |size_buffer[3];
 	
-	BYTE * message = malloc(size);
+	BYTE * message = calloc(size, sizeof(char));
 	for (j = 0; j < size*2; j++) {
 		get_LSB4(message, j, data[(j+i+1)*size_of_each_sample-1]);	
 	}
@@ -350,14 +350,14 @@ void get_from_LSB4_encrypted(const BYTE * data, const char * filename, uint32_t 
 		   | decrypted_message[2] << 8 
 		   | decrypted_message[3];
 
-	char * extension = malloc(sizeof(char) * 20);
+	char * extension = calloc(20, sizeof(char));
 	l = 0;
 	while (decrypted_message[decrypted_size + l + 4] != '\0') { 
 		extension[l] = decrypted_message[decrypted_size + l + 4];
 		l++;
 	}
 	extension[l] = '\0';
-	char * full_filename = malloc(strlen(filename) + strlen(extension));
+	char * full_filename = calloc(strlen(filename) + strlen(extension), sizeof(char));
 	strcat(full_filename, filename);
 	strcat(full_filename, extension);
 
@@ -386,7 +386,7 @@ void get_from_LSBE_encrypted(const BYTE * data, const char * filename, uint32_t 
 	size = size_buffer[0]<<24 | size_buffer[1] << 16 | size_buffer[2] << 8 |size_buffer[3];
 
 	bytes_read = 0;
-	BYTE * message = malloc(size * sizeof(BYTE));
+	BYTE * message = calloc(size, sizeof(BYTE));
 	while(bytes_read < size*8) {
 		if (data[i] == 0xFF || data[i] == 0xFE) {
 			get_LSB1(message, bytes_read, data[i]);
@@ -403,14 +403,14 @@ void get_from_LSBE_encrypted(const BYTE * data, const char * filename, uint32_t 
 		   | decrypted_message[2] << 8 
 		   | decrypted_message[3];
 
-	char * extension = malloc(sizeof(char) * 20);
+	char * extension = calloc(20, sizeof(char));
 	l = 0;
 	while (decrypted_message[decrypted_size + l + 4] != '\0') { 
 		extension[l] = decrypted_message[decrypted_size + l + 4];
 		l++;
 	}
 	extension[l] = '\0';
-	char * full_filename = malloc(strlen(filename) + strlen(extension));
+	char * full_filename = calloc(strlen(filename) + strlen(extension), sizeof(char));
 	strcat(full_filename, filename);
 	strcat(full_filename, extension);
 

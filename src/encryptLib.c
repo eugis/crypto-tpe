@@ -211,8 +211,8 @@ void print_data(const char *tittle, const void* data, uint32_t len) {
 
 uint32_t encrypt(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
-	uint32_t keyl, ivl;
-	uint32_t outl, templ;
+	uint32_t keyl = 0, ivl = 0;
+	uint32_t outl = 0, templ = 0;
 	char *out = calloc(len + EVP_MAX_BLOCK_LENGTH - 1, sizeof(char));
 	keyl = EVP_CIPHER_key_length(function());
 	ivl = EVP_CIPHER_iv_length(function());
@@ -239,8 +239,8 @@ uint32_t encrypt(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans
 
 uint32_t decrypt(const BYTE *password, const BYTE* data, uint32_t len, BYTE* ans, encrypt_function function) {
 	EVP_CIPHER_CTX ctx;
-	uint32_t keyl, ivl;
-	uint32_t outl, templ;
+	uint32_t keyl = 0, ivl = 0;
+	uint32_t outl = 0, templ = 0;
 	char *out = calloc(len, sizeof(char));
 	keyl = EVP_CIPHER_key_length(function());
 	ivl = EVP_CIPHER_iv_length(function());
